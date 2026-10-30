@@ -41,6 +41,8 @@ Your key stays in your browser. Don't share it.
 
 ## Use
 
+Settings take effect as soon as you save, no reload needed. If your manga tab was open before you installed the extension, refresh it first.
+
 Open a manga and click the extension icon, or press `Option + T` (`Alt + T` on Windows).
 
 - New pages are translated automatically. You can turn this off in Options.
