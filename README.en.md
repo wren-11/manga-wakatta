@@ -31,6 +31,8 @@ Pick one:
 New accounts on aliyun.com get a free quota in the Beijing region only. Other regions cost well under a US cent per screen. According to Alibaba, new accounts on [alibabacloud.com](https://www.alibabacloud.com) get a free quota in Singapore.
 If you use a free quota, open `qwen3-vl-plus` under Models and switch on "免费额度用完即停" (stop when the free quota runs out) so you're never billed. It's off by default.
 
+**Checking your free quota:** in the console, go to Models, search for `qwen3-vl-plus` and open it. The "免费额度" (free quota) section shows how many tokens are left and when they expire. A screen (two pages) uses about 8,000 tokens.
+
 ### Claude
 
 1. Sign in to [platform.claude.com](https://platform.claude.com) and add credit under Billing. On Claude Max or Team, you can use your monthly API credit instead by linking it under Settings → Billing → API credits on claude.ai.
