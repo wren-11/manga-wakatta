@@ -1,4 +1,4 @@
-# MangaWakatta
+# MangaWakatta!
 
 [中文](README.md)
 

@@ -1,6 +1,6 @@
 {
   "name": {
-    "message": "MangaWakatta"
+    "message": "MangaWakatta!"
   },
   "description": {
     "message": "Screenshots the manga you're reading, finds the speech bubbles with Qwen or Claude, and lays translations over the original text."

@@ -3,7 +3,7 @@ export const isZh = chrome.i18n.getUILanguage().toLowerCase().startsWith("zh");
 
 const STRINGS = {
   // 设置页
-  title: ["MangaWakatta · 设置", "MangaWakatta · Settings"],
+  title: ["MangaWakatta! · 设置", "MangaWakatta! · Settings"],
   service: ["翻译服务", "Translation service"],
   qwenOption: ["通义千问（阿里云，北京地域新用户有免费额度）", "Qwen (Alibaba Cloud)"],
   qwenName: ["通义千问", "Qwen"],

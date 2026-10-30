@@ -1,6 +1,6 @@
 {
   "name": {
-    "message": "MangaWakatta"
+    "message": "MangaWakatta!"
   },
   "description": {
     "message": "截圖辨識漫畫對話框，用通義千問或 Claude 翻譯，把譯文直接蓋在原文上。"
