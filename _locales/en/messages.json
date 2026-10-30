@@ -1,0 +1,14 @@
+{
+  "name": {
+    "message": "MangaBubble"
+  },
+  "description": {
+    "message": "Screenshots the manga you're reading, finds the speech bubbles with Qwen or Claude, and lays translations over the original text."
+  },
+  "actionTitle": {
+    "message": "Translate this screen (Option+T)"
+  },
+  "commandTranslate": {
+    "message": "Translate this screen"
+  }
+}

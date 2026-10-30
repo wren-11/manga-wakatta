@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>MangaBubble</title>
+<style>
+  body { font: 15px/1.6 -apple-system, "PingFang SC", sans-serif; max-width: 560px; margin: 40px auto; padding: 0 20px; color: #222; }
+  h1 { font-size: 22px; }
+  label { display: block; margin-top: 20px; font-weight: 600; }
+  input, select { width: 100%; box-sizing: border-box; padding: 8px 10px; margin-top: 6px; font: inherit; border: 1px solid #ccc; border-radius: 8px; }
+  .hint { color: #666; font-size: 13px; margin-top: 4px; font-weight: normal; }
+  .row { display: flex; gap: 8px; }
+  .row select { flex: 1; }
+  button { margin-top: 24px; padding: 9px 22px; font: inherit; border: 0; border-radius: 8px; background: #1a73e8; color: #fff; cursor: pointer; }
+  .row button { margin-top: 6px; background: #eee; color: #222; padding: 8px 12px; }
+  #status { margin-left: 12px; color: #188038; }
+  #status.err { color: #b3261e; }
+  code { background: #f2f2f2; padding: 1px 5px; border-radius: 4px; }
+  fieldset { border: 1px solid #e3e3e3; border-radius: 10px; margin-top: 20px; padding: 4px 16px 16px; }
+  legend { font-weight: 600; padding: 0 6px; }
+</style>
+</head>
+<body>
+  <h1 data-i18n="title">MangaBubble · 设置</h1>
+
+  <label><span data-i18n="service">翻译服务</span>
+    <select id="provider">
+      <option value="qwen" data-i18n="qwenOption">通义千问（国内直连，新用户有免费额度）</option>
+      <option value="claude">Claude（Anthropic）</option>
+    </select>
+  </label>
+
+  <fieldset id="qwenBox">
+    <legend data-i18n="qwenName">通义千问</legend>
+    <label><span data-i18n="qwenKey">阿里云百炼 API key</span>
+      <input id="qwenKey" type="password" autocomplete="off" placeholder="sk-…">
+      <div class="hint" data-i18n="qwenKeyHint"></div>
+    </label>
+    <label><span data-i18n="model">模型</span>
+      <select id="qwenModel"></select>
+      <div class="hint" data-i18n="qwenModelHint"></div>
+    </label>
+    <label><span data-i18n="baseUrl">Base URL（可选）</span>
+      <input id="qwenBase" type="url" autocomplete="off" placeholder="https://ws-xxxx.cn-beijing.maas.aliyuncs.com/compatible-mode/v1">
+      <div class="hint" data-i18n="baseUrlHint"></div>
+    </label>
+  </fieldset>
+
+  <fieldset id="claudeBox">
+    <legend>Claude</legend>
+    <label>Claude API key
+      <input id="claudeKey" type="password" autocomplete="off" placeholder="sk-ant-…">
+      <div class="hint" data-i18n="claudeKeyHint"></div>
+    </label>
+    <label><span data-i18n="model">模型</span>
+      <select id="claudeModel"></select>
+      <div class="hint" data-i18n="claudeModelHint"></div>
+    </label>
+  </fieldset>
+
+  <label><span data-i18n="translateTo">翻译成</span>
+    <select id="lang"></select>
+  </label>
+
+  <label><span data-i18n="boxMode">译文框</span>
+    <select id="boxMode">
+      <option value="tight" data-i18n="boxTight"></option>
+      <option value="grow" data-i18n="boxGrow"></option>
+    </select>
+  </label>
+
+  <label><span data-i18n="fontSize">最大字号</span>
+    <select id="fontSize">
+      <option value="small" data-i18n="small"></option>
+      <option value="medium" data-i18n="medium"></option>
+      <option value="large" data-i18n="large"></option>
+    </select>
+    <div class="hint" data-i18n="fontSizeHint"></div>
+  </label>
+
+  <label style="display:flex;gap:8px;align-items:center;font-weight:600">
+    <input id="autoTranslate" type="checkbox" style="width:auto;margin:0"><span data-i18n="autoTranslate"></span>
+  </label>
+  <div class="hint" data-i18n="autoTranslateHint"></div>
+
+  <button id="save" data-i18n="save">保存</button><span id="status"></span>
+
+  <p class="hint" style="margin-top:32px">
+    <span data-i18n="usage"></span><br>
+    <span data-i18n="shortcuts"></span>
+  </p>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

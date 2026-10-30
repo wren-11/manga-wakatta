@@ -1,0 +1,14 @@
+{
+  "name": {
+    "message": "MangaBubble"
+  },
+  "description": {
+    "message": "截圖辨識漫畫對話框，用通義千問或 Claude 翻譯，把譯文直接蓋在原文上。"
+  },
+  "actionTitle": {
+    "message": "翻譯目前畫面（Option+T）"
+  },
+  "commandTranslate": {
+    "message": "翻譯目前畫面"
+  }
+}
