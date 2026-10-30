@@ -24,7 +24,7 @@ Pick one:
 ### Qwen
 
 1. Sign in to [Alibaba Cloud Model Studio](https://bailian.console.aliyun.com).
-2. Switch the region at the top of the console to the one nearest you, such as Singapore.
+2. Switch the region at the top of the console to the one nearest you. Speed depends on distance: from outside China, the Beijing region takes 10–20 seconds a page, while a nearby region (Singapore, if you're in Australia or Southeast Asia) takes about 5.
 3. Click "API-KEY" at the bottom left, create a key and copy it. Also copy the Base URL labelled "OpenAI 兼容地址" (OpenAI compatible).
 4. Right-click the extension icon → **Options**, choose Qwen, paste the key and Base URL, and save.
 
