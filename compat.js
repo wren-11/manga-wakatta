@@ -21,6 +21,8 @@ export const PROVIDERS = {
     image: { maxSide: 1280, quality: 0.75, rows: 2 },
     // 混合思考模型：关掉思考，找框翻对白更快
     extra: { enable_thinking: false },
+    // key 和 Base URL 不在同一个地域时也是 401，提示里要说到这一点
+    keyInvalid: "qwenKeyInvalid",
     errors: {
       Arrearage: "qwenArrearage", // i18n.js 里的文字
       DataInspectionFailed: "qwenInspection",
@@ -90,7 +92,7 @@ async function request(cfg, path, apiKey, init = {}) {
   const code = data.error?.code;
   let text = cfg.errors[code] && t(cfg.errors[code]);
   if (!text) {
-    if (res.status === 401) text = t("keyInvalid", { name: cfg.name });
+    if (res.status === 401) text = cfg.keyInvalid ? t(cfg.keyInvalid) : t("keyInvalid", { name: cfg.name });
     else if (res.status === 429) text = t("rateLimit", { name: cfg.name });
     else if (res.status === 404) text = `${t("modelNotFound", { name: cfg.name })} (${msg})`;
     else text = t("apiError", { name: cfg.name, status: res.status, msg });

@@ -65,6 +65,10 @@ const STRINGS = {
   apiError: ["{name} 返回错误（{status}）：{msg}", "{name} error ({status}): {msg}"],
   timeout: ["{name} {secs} 秒没有响应，请稍后再试。", "{name} didn't respond within {secs}s. Try again later."],
   refused: ["{name} 拒绝处理这张图。", "{name} refused to process this image."],
+  qwenKeyInvalid: [
+    "通义千问 API key 无效。请检查 key 是否复制完整，以及 key 和 Base URL 是否属于同一个地域（Base URL 不填时用的是北京）。",
+    "Qwen API key isn't valid. Check it was copied in full, and that the key and Base URL come from the same region (an empty Base URL means Beijing).",
+  ],
   qwenArrearage: [
     "阿里云账户欠费或免费额度已用完，请到百炼控制台查看。",
     "Your Alibaba Cloud account is out of free quota or has an unpaid balance. Check the Model Studio console.",
