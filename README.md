@@ -10,7 +10,7 @@ Chrome 插件：截图识别漫画对话框，把译文直接盖在原文上。�
 
 1. [下载 ZIP](https://github.com/wren-11/manga-bubble/archive/refs/heads/main.zip)，解压，把 `manga-bubble-main` 文件夹放在不会误删的地方。
 2. Chrome 打开 `chrome://extensions`，打开右上角“开发者模式”。
-3. 点“加载已解压的扩展程序”，选这个文件夹。
+3. 点左上角“加载未打包的扩展程序”，选这个文件夹。
 
 更新：下载新的 ZIP 覆盖旧文件夹，再到 `chrome://extensions` 点插件上的刷新按钮。
 
