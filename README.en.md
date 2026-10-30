@@ -1,4 +1,4 @@
-# MangaBubble
+# MangaWakatta
 
 [中文](README.md)
 
@@ -8,7 +8,7 @@ It only reads what's on screen, so it works in online readers like honto.
 
 ## Install
 
-1. [Download the ZIP](https://github.com/wren-11/manga-bubble/archive/refs/heads/main.zip), unzip it, and keep the `manga-bubble-main` folder somewhere safe.
+1. [Download the ZIP](https://github.com/wren-11/manga-wakatta/archive/refs/heads/main.zip), unzip it, and keep the `manga-wakatta-main` folder somewhere safe.
 2. Open `chrome://extensions` and turn on **Developer mode** (top right).
 3. Click **Load unpacked** and pick the folder.
 
@@ -77,7 +77,7 @@ If you use a page translator such as Immersive Translate, set it to never transl
 
 ## Plans and feedback
 
-Planned: [Korean and Chinese comics](https://github.com/wren-11/manga-bubble/issues/1), [auto-translate for vertical-scroll webtoons](https://github.com/wren-11/manga-bubble/issues/2), and a [retranslate button](https://github.com/wren-11/manga-bubble/issues/3). Comment or add a 👍 on the ones you want. Found a bug? Open an [issue](https://github.com/wren-11/manga-bubble/issues).
+Planned: [Korean and Chinese comics](https://github.com/wren-11/manga-wakatta/issues/1), [auto-translate for vertical-scroll webtoons](https://github.com/wren-11/manga-wakatta/issues/2), and a [retranslate button](https://github.com/wren-11/manga-wakatta/issues/3). Comment or add a 👍 on the ones you want. Found a bug? Open an [issue](https://github.com/wren-11/manga-wakatta/issues).
 
 ## Privacy
 
