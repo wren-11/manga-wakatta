@@ -33,6 +33,8 @@ If you use a free quota, open `qwen3-vl-plus` under Models and switch on "免费
 
 **Checking your free quota:** in the console, go to Models, search for `qwen3-vl-plus` and open it. The "免费额度" (free quota) section shows how many tokens are left and when they expire. A screen (two pages) uses about 8,000 tokens.
 
+**After the free quota runs out:** top up your Alibaba Cloud account, then go back to the `qwen3-vl-plus` page and switch off "免费额度用完即停". Your key and the extension's settings stay the same. Alibaba Cloud bills afterwards, so an empty balance turns into an unpaid one; keep a little credit in the account.
+
 ### Claude
 
 1. Sign in to [platform.claude.com](https://platform.claude.com) and add credit under Billing. On Claude Max or Team, you can use your monthly API credit instead by linking it under Settings → Billing → API credits on claude.ai.
