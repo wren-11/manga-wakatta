@@ -75,6 +75,10 @@ If you use a page translator such as Immersive Translate, set it to never transl
 - A line can occasionally be skipped or a box placed off.
 - Only what's visible in the window is translated.
 
+## Plans and feedback
+
+Planned: [Korean and Chinese comics](https://github.com/wren-11/manga-bubble/issues/1), [auto-translate for vertical-scroll webtoons](https://github.com/wren-11/manga-bubble/issues/2), and a [retranslate button](https://github.com/wren-11/manga-bubble/issues/3). Comment or add a 👍 on the ones you want. Found a bug? Open an [issue](https://github.com/wren-11/manga-bubble/issues).
+
 ## Privacy
 
 Screenshots go only to the AI service you pick. The extension has no server.

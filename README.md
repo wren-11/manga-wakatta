@@ -76,6 +76,10 @@ key 只保存在你的浏览器里，不要发给别人。
 - 偶尔会漏掉一两句，或者框的位置偏移。
 - 只翻译当前窗口里看得到的部分。
 
+## 后续计划和反馈
+
+计划支持[韩漫和中文漫画](https://github.com/wren-11/manga-bubble/issues/1)、[条漫自动翻译](https://github.com/wren-11/manga-bubble/issues/2)，以及[“重新翻译这一页”按钮](https://github.com/wren-11/manga-bubble/issues/3)。想要哪个功能，可以去对应的页面留言或点赞。遇到问题也可以在 [Issues](https://github.com/wren-11/manga-bubble/issues) 里新建一条。
+
 ## 隐私
 
 截图只发给你选的 AI 服务，插件没有自己的服务器。
