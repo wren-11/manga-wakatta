@@ -33,7 +33,7 @@ If you use a free quota, open `qwen3-vl-plus` under Models and switch on "免费
 
 **Checking your free quota:** in the console, go to Models, search for `qwen3-vl-plus` and open it. The "免费额度" (free quota) section shows how many tokens are left and when they expire. A screen (two pages) uses about 8,000 tokens.
 
-**After the free quota runs out:** top up your Alibaba Cloud account, then go back to the `qwen3-vl-plus` page and switch off "免费额度用完即停". Your key and the extension's settings stay the same. Alibaba Cloud bills afterwards, so an empty balance turns into an unpaid one; keep a little credit in the account.
+**After the free quota runs out:** top up your Alibaba Cloud account, then go back to the `qwen3-vl-plus` page and switch off "免费额度用完即停". Your key and the extension's settings stay the same. From then on you pay per use, and if your balance hits zero the account goes into arrears, so keep a little credit in it.
 
 ### Claude
 
@@ -67,12 +67,12 @@ If you use a page translator such as Immersive Translate, set it to never transl
 - **Nothing happens**: it can't run on `chrome://` pages. If you just installed it, reload the manga page.
 - **Invalid key**: check it was copied in full. For Qwen, the key and Base URL must be from the same region.
 - **Out of credit**: top up your account, or for Qwen, switch back to a region with free quota.
-- **Boxes in the wrong spot**: the model's positions are sometimes off. Claude does better.
+- **Boxes in the wrong spot**: the model sometimes puts a box in slightly the wrong place. Claude does better.
 
 ## Known issues
 
 - Translations sit in white boxes over the original. The original isn't erased.
-- A line can occasionally be skipped or a box placed off.
+- Now and then a line gets skipped or a box lands in the wrong spot.
 - Only what's visible in the window is translated.
 
 ## Plans and feedback
