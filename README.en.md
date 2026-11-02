@@ -4,7 +4,7 @@
 
 A Chrome extension that screenshots the manga you're reading, finds the speech bubbles and lays the translation over them.
 
-It currently works with **Japanese manga** and translates into English, Simplified Chinese or Traditional Chinese.
+It currently works with **Japanese manga** and translates into English, Simplified Chinese or Traditional Chinese. It needs **Chrome on a computer**; phones aren't supported.
 
 It's made for online manga readers such as honto and ebookjapan. Because it reads the screen rather than the image files, it works even in official readers that won't let you save pages.
 
