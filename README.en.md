@@ -87,4 +87,4 @@ Screenshots go only to the AI service you pick. The extension has no server.
 
 ## License
 
-[MIT](LICENSE)
+Free for personal use. Don't redistribute it, publish modified versions or use it commercially without permission; to recommend it, share a link to this repository. See [LICENSE](LICENSE).
