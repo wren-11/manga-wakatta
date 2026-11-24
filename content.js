@@ -80,17 +80,25 @@ if (!window.__mangaTranslatorReady) {
     const maxFont = FONT_SIZES[display.fontSize] || FONT_SIZES.medium;
     const size = Math.min(maxFont, Math.max(MIN_FONT, Math.min(el.clientWidth, el.clientHeight) * 0.5));
     el.style.fontSize = size + "px";
-    if (display.boxMode !== "grow") return shrinkFont(el, MIN_FONT);
+    // GPT 给的框常常比原文小，字会缩到看不清：它的框不管设置都按"撑大"处理
+    if (display.boxMode !== "grow" && !el.dataset.grow) return shrinkFont(el, MIN_FONT);
     shrinkFont(el, READABLE_FONT);
     // 竖排的旁白框往往比中文译文窄：往左加列（竖排从右往左排），横排的往下加行
     const vertical = el.classList.contains("v");
+    // 撑大会碰到别的译文框就不撑了，改成缩字（不然会把旁边的框压住，或被它压住）
+    const others = [...el.parentNode.querySelectorAll(".box")].filter((b) => b !== el).map((b) => b.getBoundingClientRect());
+    const hits = (l, t, w, h) => others.some((r) => l < r.right && l + w > r.left && t < r.bottom && t + h > r.top);
     for (let i = 0; i < 8 && overflowing(el); i++) {
+      const r = el.getBoundingClientRect();
       if (vertical) {
         const w = el.offsetWidth * 1.25;
+        if (hits(r.left - (w - el.offsetWidth), r.top, w, r.height)) break;
         el.style.left = parseFloat(el.style.left) - (w - el.offsetWidth) + "px";
         el.style.width = w + "px";
       } else {
-        el.style.height = el.offsetHeight * 1.25 + "px";
+        const h = el.offsetHeight * 1.25;
+        if (hits(r.left, r.top, r.width, h)) break;
+        el.style.height = h + "px";
       }
     }
     shrinkFont(el, MIN_FONT);
@@ -107,7 +115,7 @@ if (!window.__mangaTranslatorReady) {
     // 稍微放大一点，盖住原文的边缘
     const rawW = ((xmax - xmin) / 1000) * vw;
     const rawH = ((ymax - ymin) / 1000) * vh;
-    const grow = display.boxMode === "grow";
+    const grow = display.boxMode === "grow" || !!it.grow;
     // 竖排长条的横向位置最容易偏，撑大模式下左右多留一些余量
     const padX = grow && rawH > rawW * 1.6 ? Math.max(6, rawW * 0.2) : grow ? 6 : 3;
     const padY = grow ? 6 : 3;
@@ -133,6 +141,8 @@ if (!window.__mangaTranslatorReady) {
     const el = document.createElement("div");
     el.className =
       "box" + (latin ? " latin" : height > width * 1.6 ? " v" : "") + (it.dark ? " dark" : "");
+    if (it.id != null) el.dataset.id = it.id;
+    if (it.grow) el.dataset.grow = "1";
     el.setAttribute("translate", "no");
     el.classList.add("notranslate");
     // 框重叠时小的叠在上面，不会被大框整个盖住
@@ -171,6 +181,9 @@ if (!window.__mangaTranslatorReady) {
     else if (msg.type === "add") {
       ensureHost().querySelector(".toast")?.remove();
       addBox(msg.item);
+    } else if (msg.type === "remove") {
+      // 后台把这个框和新来的合并了，旧的先拿掉
+      ensureHost().querySelector(`.box[data-id="${msg.id}"]`)?.remove();
     } else if (msg.type === "done") {
       inFlight = false;
       (msg.items || []).forEach(addBox);

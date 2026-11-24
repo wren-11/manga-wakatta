@@ -9,6 +9,8 @@ export const PROVIDERS = {
     },
     // 旧的通用域名，2026-09-30 起只维护不加新功能；用户可以在设置里填业务空间专属地址覆盖
     base: "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    // 设置里的 Base URL 只能填阿里云百炼的地址（和 manifest 的 host_permissions 对应），不能借这一栏接别家的接口
+    hosts: [/^dashscope\.aliyuncs\.com$/, /^dashscope-intl\.aliyuncs\.com$/, /^[\w-]+(\.[\w-]+)*\.maas\.aliyuncs\.com$/],
     // 北京区没有 qwen3-vl-flash（Model not exist），只留 Plus
     models: [{ name: "qwen3-vl-plus", label: "Qwen3-VL-Plus" }],
     split: true,
@@ -31,12 +33,37 @@ export const PROVIDERS = {
   openai: {
     name: "OpenAI",
     base: "https://api.openai.com/v1",
-    models: [{ name: "gpt-5-mini", label: "gpt-5-mini" }],
+    // 只连官方地址，不接中转（中转慢，也没法确认后面跑的是什么模型）
+    hosts: [/^api\.openai\.com$/],
+    // gpt-5-mini 在韩漫版试过，框太不准，只留 gpt-5
+    models: [{ name: "gpt-5", label: "gpt-5" }],
+    // 日漫常有左右跨页：不切的话整张缩到短边 768，字太小。切块时每个框只归中心所在的那块，不会重复
     split: true,
     jsonMode: "json_schema",
-    extra: { reasoning_effort: "low" },
+    // GPT 给 0–1000 比例坐标会整体往左上缩（框对不准），像 Claude 一样要像素坐标
+    coords: "pixel",
+    // OpenAI 收到图会先缩到短边 768（长边不超过 2048）再看；先缩好再发，它看到的像素就是我们换算用的像素。
+    // 跨页只左右切时每块半页缩到 768×775 左右，小字只剩几个像素，位置估不准：再上下切一刀（一页 4 块），字大约放大 1.8 倍
+    image: { shortSide: 768, maxSide: 2048, rows: 2, grid: 100 },
+    detail: "high",
+    // GPT 爱把一段字按行、按列拆成好几条（大字、竖排最明显），也会跳过脏话
+    promptExtra:
+      "\n\n特别注意：同一个对话框、同一块旁白框、同一组大字，不管分成几行几列、字有多大，都只输出一条，框住整段文字（竖排时从最右一列到最左一列），不要按行、按列或按词拆成几条。" +
+      "脏话、粗口也要照实翻译成对应语气的说法，不能跳过不翻。translation 里不能留任何日文假名（比如「くそ」要翻成「可恶」，不能原样留着）。" +
+      "\n\n图片上叠加了半透明的红色坐标网格：每隔 100 像素一条线，四边标着这条线的像素值。给坐标时对照网格读数：先看文字落在哪两条竖线、哪两条横线之间，再估在格子里的位置。红色网格和数字不是漫画内容，不要翻译、不要输出。",
+    // 译文里零星留下的假名去掉，不整条丢
+    stripKana: true,
+    // 框比里面的字大太多（框了整个格子）时缩小，免得画出盖住半个格子的大白块
+    capBox: true,
+    dropPunct: true,
+    // 每次都把 GPT 的原话记进日志（详细级别），漏翻时能看出是它没给还是被插件丢了
+    logRaw: true,
+    // 推理模型：找框翻对白用不着多想，调到最低更快（不认这个值时 stream() 会去掉它重发）。
+    // 试过 low：一页 4 块都要先想一阵，半天出不来结果，位置也没见好，退回 minimal
+    extra: { reasoning_effort: "minimal" },
     errors: {
-      insufficient_quota: "OpenAI 账户余额不足。API 和 ChatGPT 会员是分开计费的，需要到 platform.openai.com 的 Billing 里充值。", // 设置页没有 OpenAI，没翻英文
+      insufficient_quota: "openaiQuota",
+      unverified: "openaiUnverified",
     },
   },
 };
@@ -81,6 +108,18 @@ const shape = (lang, transcribe) =>
     transcribe ? '"text":"私はとても幸せでした。",' : ""
   }"translation":"${EXAMPLE[lang] || EXAMPLE["zh-Hans"]}"}]}`;
 
+// 设置里填的 Base URL 能不能用：空的就用默认地址；服务商没写 hosts 的不限制
+export function baseAllowed(provider, url) {
+  const hosts = PROVIDERS[provider]?.hosts;
+  if (!url || !hosts) return true;
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" && hosts.some((h) => h.test(u.hostname));
+  } catch {
+    return false;
+  }
+}
+
 async function request(cfg, path, apiKey, init = {}) {
   const res = await fetch(`${(cfg.baseOverride || cfg.base).replace(/\/+$/, "")}/${path}`, {
     ...init,
@@ -91,6 +130,8 @@ async function request(cfg, path, apiKey, init = {}) {
   const msg = data.error?.message || res.statusText;
   const code = data.error?.code;
   let text = cfg.errors[code] && t(cfg.errors[code]);
+  // OpenAI 的新模型要先做组织验证，没做时返回 404 "Your organization must be verified..."，别说成"找不到模型"
+  if (!text && /organization must be verified/i.test(msg) && cfg.errors.unverified) text = t(cfg.errors.unverified);
   if (!text) {
     if (res.status === 401) text = cfg.keyInvalid ? t(cfg.keyInvalid) : t("keyInvalid", { name: cfg.name });
     else if (res.status === 429) text = t("rateLimit", { name: cfg.name });
@@ -143,23 +184,78 @@ export function looseScanner(onObject) {
   };
 }
 
-function toBox(it) {
-  if (![it.x1, it.y1, it.x2, it.y2].every(Number.isFinite)) return null;
-  const n = (v) => Math.round(Math.min(1000, Math.max(0, v)));
-  const [xa, xb] = [n(it.x1), n(it.x2)].sort((a, b) => a - b);
-  const [ya, yb] = [n(it.y1), n(it.y2)].sort((a, b) => a - b);
-  return { box_2d: [ya, xa, yb, xb], translation: it.translation };
+// GPT 偶尔在译文里留一两个假名（比如"くそ…"没翻），整条会被当成没翻丢掉。
+// 译文里还有别的字时，只把假名去掉；整句都是假名的照旧交给后面丢掉
+function stripKana(t) {
+  if (!/[\u3040-\u30ff]/.test(t)) return t;
+  const rest = t.replace(/[\u3040-\u30ff]+/g, "").replace(/[ \t]{2,}/g, " ").trim();
+  return /[^\s\p{P}\p{S}\d]/u.test(rest) ? rest : t;
 }
 
-export async function translateCompat({ provider, baseUrl, apiKey, model, lang, imageBase64, onItem, signal }) {
+// GPT 有时不框字、框了一大片（整个格子），画出来是盖住半个格子的大白块。
+// 按抄下的原文字数估这些字大约要多大地方（每字约 26 像素见方，留一倍余量）；框比这大 6 倍以上、又接近正方形，
+// 就以框的中心为准缩到估计的两倍大小。又高又窄（竖排大字标题）或又宽又扁的不动，那种本来就该那么大
+function capBox(it) {
+  const w = it.x2 - it.x1, h = it.y2 - it.y1;
+  if (!(w > 0 && h > 0)) return it;
+  const chars = Math.max(2, (it.text || it.translation || "").replace(/[\s\p{P}\p{S}]/gu, "").length);
+  const est = chars * 26 * 26 * 2;
+  const thin = Math.min(w, h), long = Math.max(w, h);
+  const aspect = long / thin;
+  const cx = (it.x1 + it.x2) / 2, cy = (it.y1 + it.y2) / 2;
+  const shrink = (nw, nh, why) => {
+    console.debug(`[框太大] 「${(it.text || it.translation || "").slice(0, 12)}」${why}：${Math.round(w)}×${Math.round(h)} → ${Math.round(nw)}×${Math.round(nh)}`);
+    return { ...it, x1: cx - nw / 2, x2: cx + nw / 2, y1: cy - nh / 2, y2: cy + nh / 2 };
+  };
+  // 1. 不管什么形状，比字数需要的大 15 倍以上：离谱，缩到需要的 4 倍
+  if (w * h > est * 15) {
+    const k = Math.sqrt((est * 4) / (w * h));
+    return shrink(w * k, h * k, "比字数需要的大太多");
+  }
+  // 2. 接近正方形、大 6 倍以上：多半框了整个格子
+  if (aspect < 1.6 && w * h > est * 6) {
+    const k = Math.sqrt((est * 2) / (w * h));
+    return shrink(w * k, h * k, "框了一大片");
+  }
+  // 3. 又长又扁 / 又高又窄：一行（一列）字每个字差不多跟框的粗细一样大，长度不该超过"字数 × 粗细"太多。
+  //    竖排大字标题字本身就粗，长度对得上，不受影响
+  const maxLong = chars * thin * 1.5 + thin * 2;
+  if (aspect >= 1.6 && long > maxLong) {
+    return w >= h ? shrink(maxLong, h, "长条太长") : shrink(w, maxLong, "长条太长");
+  }
+  return it;
+}
+
+// size：像素坐标时传图片的 { width, height }，换算成 0–1000；不传就当已经是 0–1000
+function toBox(it, size) {
+  if (![it.x1, it.y1, it.x2, it.y2].every(Number.isFinite)) return null;
+  const sx = size ? 1000 / size.width : 1;
+  const sy = size ? 1000 / size.height : 1;
+  const nx = (v) => Math.round(Math.min(1000, Math.max(0, v * sx)));
+  const ny = (v) => Math.round(Math.min(1000, Math.max(0, v * sy)));
+  const [xa, xb] = [nx(it.x1), nx(it.x2)].sort((a, b) => a - b);
+  const [ya, yb] = [ny(it.y1), ny(it.y2)].sort((a, b) => a - b);
+  // src：模型抄下的日文原文，左右两块重叠处翻到同一句时靠它认出来
+  return { box_2d: [ya, xa, yb, xb], translation: it.translation, ...(typeof it.text === "string" && { src: it.text }) };
+}
+
+export async function translateCompat({ provider, baseUrl, apiKey, model, lang, imageBase64, width, height, onItem, signal }) {
+  // 以前存下的非官方地址（比如别家的中转）直接报错，不把 key 发过去
+  if (!baseAllowed(provider, baseUrl)) throw new Error(t("baseUrlNotAllowed"));
   const cfg = { ...PROVIDERS[provider], baseOverride: baseUrl };
+  const pixel = cfg.coords === "pixel" && width > 0 && height > 0;
+  cfg.size = pixel ? { width, height } : null;
+  const boxSpec = pixel
+    ? `- x1, y1, x2, y2：这段原文在图片上的像素坐标（左上角和右下角）。图片宽 ${width} 像素、高 ${height} 像素，原点在左上角。框要紧贴文字本身，不要框住整个格子或大片空白。`
+    : BOX_SPEC;
   const transcribe = cfg.transcribe ?? true;
-  let prompt = buildPrompt(lang, BOX_SPEC + (transcribe ? TEXT_SPEC : "")).replace(
+  let prompt = buildPrompt(lang, boxSpec + (transcribe ? TEXT_SPEC : "")).replace(
     "没有文字就返回空数组",
     "没有文字就返回空的 items"
   );
   // 结构化输出也带上格式和例子："translation 必须是译文"这句能防止它照抄日文
   prompt += shape(lang, transcribe);
+  if (cfg.promptExtra) prompt += cfg.promptExtra;
   const body = {
     model,
     stream: true,
@@ -173,7 +269,7 @@ export async function translateCompat({ provider, baseUrl, apiKey, model, lang, 
       {
         role: "user",
         content: [
-          { type: "image_url", image_url: { url: `data:image/jpeg;base64,${imageBase64}` } },
+          { type: "image_url", image_url: { url: `data:image/jpeg;base64,${imageBase64}`, ...(cfg.detail && { detail: cfg.detail }) } },
           { type: "text", text: prompt },
         ],
       },
@@ -223,7 +319,10 @@ async function stream(cfg, body, apiKey, signal, onItem) {
   let dropped = 0;
   let raw = "";
   const handle = (obj) => {
-    const it = toBox(obj);
+    // 译文只有标点符号（「…」「!!」）：原文本来就是这些，翻了也没多出意思，画出来只会挡住画面
+    if (cfg.dropPunct && typeof obj.translation === "string" && !/[^\s\p{P}\p{S}]/u.test(obj.translation)) return void dropped++;
+    const it = toBox(cfg.capBox && cfg.size ? capBox(obj) : obj, cfg.size);
+    if (it && cfg.stripKana) it.translation = stripKana(it.translation);
     if (!valid(it)) return void dropped++;
     items.push(it);
     onItem?.(it);
@@ -276,14 +375,14 @@ async function stream(cfg, body, apiKey, signal, onItem) {
     }
   }
   console.debug(
-    `[${cfg.name}] ${body.model}（${body.response_format.type}）：上传图片 ${Math.round(body.messages[0].content[0].image_url.url.length / 1024)} KB，` +
+    `[${cfg.name}] ${body.model}（${body.response_format.type}）：上传图片 ${Math.round(body.messages[0].content[0].image_url.url.length / 1024)} KB${cfg.size ? `（${cfg.size.width}×${cfg.size.height} 像素）` : ""}，` +
       `上传加排队 ${((stats.started - sent) / 1000).toFixed(1)} 秒，` +
       `等待首字 ${((stats.firstToken - stats.started) / 1000).toFixed(1)} 秒，` +
       `总共 ${((Date.now() - stats.started) / 1000).toFixed(1)} 秒，正文 ${stats.content} 字，思考 ${stats.reasoning} 字`,
     stats.usage || ""
   );
   // 有被过滤的就把模型原话打出来（同样只在 Verbose 级别显示），看是没翻译、坐标不对还是格式不对
-  if (dropped || !items.length) console.debug(`[${cfg.name}] 可用 ${items.length} 条，被过滤 ${dropped} 条，原始输出：`, raw.slice(0, 3000));
+  if (dropped || !items.length || cfg.logRaw) console.debug(`[${cfg.name}] 可用 ${items.length} 条，被过滤 ${dropped} 条，原始输出：`, raw.slice(0, 3000));
   if (refusal && !items.length) throw new Error(t("refused", { name: cfg.name }));
   return items;
 }

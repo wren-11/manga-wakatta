@@ -1,9 +1,11 @@
 import { LANGUAGES } from "./gemini.js";
 import { CLAUDE_MODELS, CLAUDE_DEFAULT_MODEL } from "./claude.js";
-import { PROVIDERS } from "./compat.js";
+import { PROVIDERS, baseAllowed } from "./compat.js";
 import { t, isZh } from "./i18n.js";
 
 // 设置页里有自己一栏的兼容接口服务商，key 和模型存成 qwenKey / qwenModel 这样
+// OpenAI（gpt-5）试过：日漫格子密、竖排多，它给的位置常偏到隔壁对话框，比千问、Claude 差很多，先不放进设置页。
+// compat.js 里的配置和那些为它做的处理（像素坐标、校正、网格、去重）都留着，以后有标位置更准的模型可以加回来
 const COMPAT_IDS = ["qwen"];
 
 const $ = (id) => document.getElementById(id);
@@ -44,7 +46,7 @@ async function init() {
   const compatSaved = await chrome.storage.local.get(COMPAT_IDS.flatMap((id) => [`${id}Key`, `${id}Model`, `${id}Base`]));
   for (const id of COMPAT_IDS) {
     $(`${id}Key`).value = compatSaved[`${id}Key`] || "";
-    $(`${id}Base`).value = compatSaved[`${id}Base`] || "";
+    if ($(`${id}Base`)) $(`${id}Base`).value = compatSaved[`${id}Base`] || "";
     for (const m of PROVIDERS[id].models) $(`${id}Model`).appendChild(new Option(m.label, m.name));
     $(`${id}Model`).value = compatSaved[`${id}Model`] || PROVIDERS[id].models[0].name;
   }
@@ -61,6 +63,12 @@ $("provider").addEventListener("change", () => {
 });
 $("save").addEventListener("click", async () => {
   const claudeKey = $("claudeKey").value.trim();
+  const base = (id) => $(`${id}Base`)?.value.trim() || "";
+  const badBase = COMPAT_IDS.find((id) => !baseAllowed(id, base(id)));
+  if (badBase) {
+    $(`${badBase}Base`).focus();
+    return status(t("baseUrlNotAllowed"), true);
+  }
   await chrome.storage.local.set({
     provider: $("provider").value,
     claudeKey,
@@ -69,7 +77,7 @@ $("save").addEventListener("click", async () => {
       COMPAT_IDS.flatMap((id) => [
         [`${id}Key`, $(`${id}Key`).value.trim()],
         [`${id}Model`, $(`${id}Model`).value],
-        [`${id}Base`, $(`${id}Base`).value.trim()],
+        [`${id}Base`, base(id)],
       ])
     ),
     lang: $("lang").value,

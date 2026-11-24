@@ -22,6 +22,25 @@ const STRINGS = {
     "在百炼的“API Key”页面找到 Base URL，复制中间那个“OpenAI 兼容地址”粘贴到这里。不填就用北京的通用地址。在海外用的话，把控制台顶部的地域切到新加坡，在那里创建 key，再复制那边的地址。",
     "Find Base URL on the API Key page and copy the middle one, “OpenAI compatible”. Leave it empty to use the default Beijing endpoint. Outside China, switch the region at the top of the console to Singapore, create a key there and copy that region's address.",
   ],
+  baseUrlNotAllowed: [
+    "通义千问的 Base URL 只能填阿里云百炼的地址（dashscope.aliyuncs.com、dashscope-intl.aliyuncs.com 或业务空间专属的 ….maas.aliyuncs.com）。不确定的话留空就行。",
+    "Qwen's Base URL must be an Alibaba Cloud Model Studio address (dashscope.aliyuncs.com, dashscope-intl.aliyuncs.com or your workspace's ….maas.aliyuncs.com). Leave it empty if unsure.",
+  ],
+  openaiOption: ["OpenAI（ChatGPT，中国大陆需要代理）", "OpenAI (ChatGPT)"],
+  openaiKey: ["OpenAI API key", "OpenAI API key"],
+  openaiKeyHint: [
+    "在 platform.openai.com 的“API keys”页面创建。API 和 ChatGPT 会员是分开计费的，要先在 Billing 里充值。key 只保存在这台电脑的浏览器里。",
+    "Create one on the API keys page at platform.openai.com. The API is billed separately from ChatGPT subscriptions, so add credit under Billing first. Your key stays in this browser.",
+  ],
+  openaiModelHint: ["gpt-5 找对话框的位置比较准；比千问慢一些、也贵一些。", "gpt-5 places text boxes fairly accurately; it's slower and pricier than Qwen."],
+  openaiUnverified: [
+    "OpenAI 要求先验证组织才能用这个模型：到 platform.openai.com/settings/organization/general 点 Verify Organization，按提示完成身份验证。验证通过后最多要等 15 分钟生效。",
+    "OpenAI requires organization verification for this model. Go to platform.openai.com/settings/organization/general, click Verify Organization and follow the steps. It can take up to 15 minutes to take effect.",
+  ],
+  openaiQuota: [
+    "OpenAI 账户余额不足。API 和 ChatGPT 会员是分开计费的，需要到 platform.openai.com 的 Billing 里充值。",
+    "Your OpenAI account is out of credit. The API is billed separately from ChatGPT; add credit under Billing at platform.openai.com.",
+  ],
   claudeKeyHint: [
     "在 platform.claude.com 申请。key 只保存在这台电脑的浏览器里。",
     "Get one at platform.claude.com. Your key stays in this browser.",
